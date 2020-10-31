@@ -1,7 +1,6 @@
 import * as THREE from "https://unpkg.com/three/build/three.module.js";
 
 import Stats from "https://unpkg.com/three/examples/jsm/libs/stats.module.js";
-import { GUI } from "https://unpkg.com/three/examples/jsm/libs/dat.gui.module.js";
 
 import { OrbitControls } from "https://unpkg.com/three/examples/jsm/controls/OrbitControls.js";
 
@@ -16,10 +15,6 @@ import { OrbitControls } from "https://unpkg.com/three/examples/jsm/controls/Orb
 // http://en.wikipedia.org/wiki/Cloth_modeling
 // http://cg.alexandra.dk/tag/spring-mass-system/
 // Real-time Cloth Animation http://www.darwin3d.com/gamedev/articles/col0599.pdf
-
-const params = {
-  enableWind: true,
-};
 
 const DAMPING = 0.03;
 const DRAG = 1 - DAMPING;
@@ -203,19 +198,17 @@ function simulate(now) {
 
   const particles = cloth.particles;
 
-  if (params.enableWind) {
-    let indx;
-    const normal = new THREE.Vector3();
-    const indices = clothGeometry.index;
-    const normals = clothGeometry.attributes.normal;
+  let indx;
+  const normal = new THREE.Vector3();
+  const indices = clothGeometry.index;
+  const normals = clothGeometry.attributes.normal;
 
-    for (let i = 0, il = indices.count; i < il; i += 3) {
-      for (let j = 0; j < 3; j++) {
-        indx = indices.getX(i + j);
-        normal.fromBufferAttribute(normals, indx);
-        tmpForce.copy(normal).normalize().multiplyScalar(normal.dot(windForce));
-        particles[indx].addForce(tmpForce);
-      }
+  for (let i = 0, il = indices.count; i < il; i += 3) {
+    for (let j = 0; j < 3; j++) {
+      indx = indices.getX(i + j);
+      normal.fromBufferAttribute(normals, indx);
+      tmpForce.copy(normal).normalize().multiplyScalar(normal.dot(windForce));
+      particles[indx].addForce(tmpForce);
     }
   }
 
@@ -432,12 +425,6 @@ function init() {
   //
 
   window.addEventListener("resize", onWindowResize, false);
-
-  //
-
-  const gui = new GUI();
-  gui.add(params, "enableWind").name("Enable wind");
-  //
 
   if (typeof TESTING !== "undefined") {
     for (let i = 0; i < 50; i++) {
