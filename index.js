@@ -160,17 +160,18 @@ function init() {
 
   // cloth material
   const loader = new THREE.TextureLoader();
-  const clothTexture = loader.load("textures/patterns/circuit_pattern.png");
-  clothTexture.anisotropy = 16;
-
-  const clothMaterial = new THREE.MeshLambertMaterial({
-    map: clothTexture,
-    side: THREE.DoubleSide,
-    alphaTest: 0.5,
-  });
 
   // cloth geometry
   cloths.forEach((cloth, i) => {
+    const clothTexture = loader.load(`textures/patterns/shop-curtain-${i}.png`);
+    clothTexture.anisotropy = 16;
+  
+    const clothMaterial = new THREE.MeshLambertMaterial({
+      map: clothTexture,
+      side: THREE.DoubleSide,
+      alphaTest: 1,
+    });
+
     const clothGeometry = new THREE.ParametricBufferGeometry(
       clothFunction,
       cloth.w,
