@@ -19,7 +19,6 @@ import { OrbitControls } from "https://unpkg.com/three/examples/jsm/controls/Orb
 
 const params = {
   enableWind: true,
-  togglePins: togglePins,
 };
 
 const DAMPING = 0.03;
@@ -259,28 +258,7 @@ function simulate(now) {
 
 /* testing cloth simulation */
 
-const pinsFormation = [];
-pins = [6];
-
-pinsFormation.push(pins);
-
 pins = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-pinsFormation.push(pins);
-
-pins = [0];
-pinsFormation.push(pins);
-
-pins = []; // cut the rope ;)
-pinsFormation.push(pins);
-
-pins = [0, cloth.w]; // classic 2 pins
-pinsFormation.push(pins);
-
-pins = pinsFormation[1];
-
-function togglePins() {
-  pins = pinsFormation[~~(Math.random() * pinsFormation.length)];
-}
 
 let container, stats;
 let camera, scene, renderer;
@@ -459,7 +437,6 @@ function init() {
 
   const gui = new GUI();
   gui.add(params, "enableWind").name("Enable wind");
-  gui.add(params, "togglePins").name("Toggle pins");
   //
 
   if (typeof TESTING !== "undefined") {
