@@ -394,12 +394,6 @@ function init() {
   //
 
   window.addEventListener("resize", onWindowResize, false);
-
-  if (typeof TESTING !== "undefined") {
-    for (let i = 0; i < 50; i++) {
-      simulate(500 - 10 * i);
-    }
-  }
 }
 
 //
