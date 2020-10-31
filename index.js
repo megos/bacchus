@@ -19,8 +19,10 @@ import { Cloth } from "./cloth.js";
 // Real-time Cloth Animation http://www.darwin3d.com/gamedev/articles/col0599.pdf
 
 const cloths = [];
+const randoms = [];
 for (let i = 0; i < 4; i++) {
   cloths.push(new Cloth(xSegs, ySegs));
+  randoms.push(Math.random() * 10000)
 }
 
 const GRAVITY = 981 * 1.4;
@@ -39,7 +41,7 @@ function simulate(now) {
     const normal = new THREE.Vector3();
 
   clothGeometries.forEach((clothGeometry, idx) => {
-    const rand = Math.random() * now * (idx + 1);
+    const rand = now + randoms[idx];
     const windStrength = Math.cos(rand / 7000) * 10 + 5;
 
     windForce.set(
