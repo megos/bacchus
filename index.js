@@ -34,8 +34,6 @@ const gravity = new THREE.Vector3(0, -GRAVITY, 0).multiplyScalar(MASS);
 const TIMESTEP = 18 / 1000;
 const TIMESTEP_SQ = TIMESTEP * TIMESTEP;
 
-const pins = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
 const windForce = new THREE.Vector3(0, 0, 0);
 
 const tmpForce = new THREE.Vector3();
@@ -241,9 +239,8 @@ function simulate(now) {
 
   // Pin Constraints
 
-  for (let i = 0, il = pins.length; i < il; i++) {
-    const xy = pins[i];
-    const p = particles[xy];
+  for (let i = 0; i <= cloth.w; i++) {
+    const p = particles[i + particles.length - 1 - cloth.w];
     p.position.copy(p.original);
     p.previous.copy(p.original);
   }
@@ -327,7 +324,7 @@ function init() {
   // cloth mesh
 
   object = new THREE.Mesh(clothGeometry, clothMaterial);
-  object.position.set(0, 0, 0);
+  object.position.set(0, -250, 0);
   object.castShadow = true;
   scene.add(object);
 
