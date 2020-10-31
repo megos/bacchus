@@ -3,6 +3,7 @@ export const DRAG = 1 - DAMPING;
 export const restDistance = 25;
 export const xSegs = 16;
 export const ySegs = 5;
+export const MASS = 0.1;
 
 export const clothFunction = plane(restDistance * xSegs, restDistance * ySegs);
 

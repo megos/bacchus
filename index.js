@@ -3,8 +3,8 @@ import * as THREE from "https://unpkg.com/three/build/three.module.js";
 import Stats from "https://unpkg.com/three/examples/jsm/libs/stats.module.js";
 
 import { OrbitControls } from "https://unpkg.com/three/examples/jsm/controls/OrbitControls.js";
-import { Particle } from "./particle.js";
-import { clothFunction, restDistance, xSegs, ySegs } from "./lib.js";
+import { clothFunction, xSegs, ySegs, MASS } from "./lib.js";
+import { Cloth } from "./cloth.js";
 
 /*
  * Cloth Simulation using a relaxed constraints solver
@@ -17,8 +17,6 @@ import { clothFunction, restDistance, xSegs, ySegs } from "./lib.js";
 // http://en.wikipedia.org/wiki/Cloth_modeling
 // http://cg.alexandra.dk/tag/spring-mass-system/
 // Real-time Cloth Animation http://www.darwin3d.com/gamedev/articles/col0599.pdf
-
-const MASS = 0.1;
 
 const cloth = new Cloth(xSegs, ySegs);
 
@@ -42,64 +40,6 @@ function satisfyConstraints(p1, p2, distance) {
   const correctionHalf = correction.multiplyScalar(0.5);
   p1.position.add(correctionHalf);
   p2.position.sub(correctionHalf);
-}
-
-function Cloth(w, h) {
-  w = w || 10;
-  h = h || 10;
-  this.w = w;
-  this.h = h;
-
-  const particles = [];
-  const constraints = [];
-
-  // Create particles
-  for (let v = 0; v <= h; v++) {
-    for (let u = 0; u <= w; u++) {
-      particles.push(new Particle(u / w, v / h, 0, MASS));
-    }
-  }
-
-  // Structural
-
-  for (let v = 0; v < h; v++) {
-    for (let u = 0; u < w; u++) {
-      constraints.push([
-        particles[index(u, v)],
-        particles[index(u, v + 1)],
-        restDistance,
-      ]);
-
-      constraints.push([
-        particles[index(u, v)],
-        particles[index(u + 1, v)],
-        restDistance,
-      ]);
-    }
-  }
-
-  for (let u = w, v = 0; v < h; v++) {
-    constraints.push([
-      particles[index(u, v)],
-      particles[index(u, v + 1)],
-      restDistance,
-    ]);
-  }
-
-  for (let v = h, u = 0; u < w; u++) {
-    constraints.push([
-      particles[index(u, v)],
-      particles[index(u + 1, v)],
-      restDistance,
-    ]);
-  }
-
-  this.particles = particles;
-  this.constraints = constraints;
-
-  function index(u, v) {
-    return u + v * (w + 1);
-  }
 }
 
 function simulate(now) {
