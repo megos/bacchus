@@ -22,7 +22,7 @@ const cloths = [];
 const randoms = [];
 for (let i = 0; i < 4; i++) {
   cloths.push(new Cloth(xSegs, ySegs));
-  randoms.push(Math.random() * 10000)
+  randoms.push(Math.random() * 10000);
 }
 
 const GRAVITY = 981 * 1.4;
@@ -37,8 +37,8 @@ const diff = new THREE.Vector3();
 
 function simulate(now) {
   // Aerodynamics forces
-    let indx;
-    const normal = new THREE.Vector3();
+  let indx;
+  const normal = new THREE.Vector3();
 
   clothGeometries.forEach((clothGeometry, idx) => {
     const rand = now + randoms[idx];
@@ -125,8 +125,8 @@ function init() {
 
   // scene
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xcce0ff);
-  scene.fog = new THREE.Fog(0xcce0ff, 500, 10000);
+  scene.background = new THREE.Color(0x341602);
+  scene.fog = new THREE.Fog(0x341602, 500, 10000);
 
   // camera
   camera = new THREE.PerspectiveCamera(
@@ -167,7 +167,7 @@ function init() {
   cloths.forEach((cloth, i) => {
     const clothTexture = loader.load(`textures/patterns/shop-curtain-${i}.png`);
     clothTexture.anisotropy = 16;
-  
+
     const clothMaterial = new THREE.MeshLambertMaterial({
       map: clothTexture,
       side: THREE.DoubleSide,
@@ -195,62 +195,28 @@ function init() {
   });
 
   // ground
-  const groundTexture = loader.load("textures/terrain/grasslight-big.jpg");
-  groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-  groundTexture.repeat.set(25, 25);
-  groundTexture.anisotropy = 16;
-  groundTexture.encoding = THREE.sRGBEncoding;
-
-  const groundMaterial = new THREE.MeshLambertMaterial({ map: groundTexture });
+  const groundMaterial = new THREE.MeshLambertMaterial();
 
   let mesh = new THREE.Mesh(
     new THREE.PlaneBufferGeometry(20000, 20000),
     groundMaterial
   );
-  mesh.position.y = -250;
+  mesh.position.y = -200;
   mesh.rotation.x = -Math.PI / 2;
   mesh.receiveShadow = true;
   scene.add(mesh);
 
   // poles
-  const poleGeo = new THREE.BoxBufferGeometry(5, 260, 5);
-  const poleMat = new THREE.MeshLambertMaterial();
+  const poleGeo = new THREE.CylinderBufferGeometry(5, 5, 500, 20);
+  const poleMat = new THREE.MeshStandardMaterial({ color: 0x8b4315 });
 
   mesh = new THREE.Mesh(poleGeo, poleMat);
-  mesh.position.x = -200;
-  mesh.position.y = -62;
-  mesh.receiveShadow = true;
-  mesh.castShadow = true;
-  scene.add(mesh);
-
-  mesh = new THREE.Mesh(poleGeo, poleMat);
-  mesh.position.x = 200;
-  mesh.position.y = -62;
-  mesh.receiveShadow = true;
-  mesh.castShadow = true;
-  scene.add(mesh);
-
-  mesh = new THREE.Mesh(new THREE.BoxBufferGeometry(400, 5, 5), poleMat);
-  mesh.position.y = -200 + 530 / 2;
+  mesh.position.y = 60;
   mesh.position.x = 0;
   mesh.receiveShadow = true;
   mesh.castShadow = true;
   scene.add(mesh);
-
-  const gg = new THREE.BoxBufferGeometry(10, 10, 10);
-  mesh = new THREE.Mesh(gg, poleMat);
-  mesh.position.y = -190;
-  mesh.position.x = 200;
-  mesh.receiveShadow = true;
-  mesh.castShadow = true;
-  scene.add(mesh);
-
-  mesh = new THREE.Mesh(gg, poleMat);
-  mesh.position.y = -190;
-  mesh.position.x = -200;
-  mesh.receiveShadow = true;
-  mesh.castShadow = true;
-  scene.add(mesh);
+  mesh.rotation.set(Math.PI / 2, 0, Math.PI / 2);
 
   // renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
