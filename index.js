@@ -19,7 +19,6 @@ import { OrbitControls } from "https://unpkg.com/three/examples/jsm/controls/Orb
 
 const params = {
   enableWind: true,
-  showBall: false,
   togglePins: togglePins,
 };
 
@@ -44,9 +43,6 @@ const TIMESTEP_SQ = TIMESTEP * TIMESTEP;
 let pins = [];
 
 const windForce = new THREE.Vector3(0, 0, 0);
-
-const ballPosition = new THREE.Vector3(0, -45, 0);
-const ballSize = 60; //40
 
 const tmpForce = new THREE.Vector3();
 
@@ -241,28 +237,6 @@ function simulate(now) {
     satisfyConstraints(constraint[0], constraint[1], constraint[2]);
   }
 
-  // Ball Constraints
-
-  ballPosition.z = -Math.sin(now / 600) * 90; //+ 40;
-  ballPosition.x = Math.cos(now / 400) * 70;
-
-  if (params.showBall) {
-    sphere.visible = true;
-
-    for (let i = 0, il = particles.length; i < il; i++) {
-      const particle = particles[i];
-      const pos = particle.position;
-      diff.subVectors(pos, ballPosition);
-      if (diff.length() < ballSize) {
-        // collided
-        diff.normalize().multiplyScalar(ballSize);
-        pos.copy(ballPosition).add(diff);
-      }
-    }
-  } else {
-    sphere.visible = false;
-  }
-
   // Floor Constraints
 
   for (let i = 0, il = particles.length; i < il; i++) {
@@ -312,7 +286,6 @@ let container, stats;
 let camera, scene, renderer;
 
 let clothGeometry;
-let sphere;
 let object;
 
 init();
@@ -394,17 +367,6 @@ function init() {
     map: clothTexture,
     alphaTest: 0.5,
   });
-
-  // sphere
-
-  const ballGeo = new THREE.SphereBufferGeometry(ballSize, 32, 16);
-  const ballMaterial = new THREE.MeshLambertMaterial();
-
-  sphere = new THREE.Mesh(ballGeo, ballMaterial);
-  sphere.castShadow = true;
-  sphere.receiveShadow = true;
-  sphere.visible = false;
-  scene.add(sphere);
 
   // ground
 
@@ -497,7 +459,6 @@ function init() {
 
   const gui = new GUI();
   gui.add(params, "enableWind").name("Enable wind");
-  gui.add(params, "showBall").name("Show ball");
   gui.add(params, "togglePins").name("Toggle pins");
   //
 
@@ -538,8 +499,6 @@ function render() {
   clothGeometry.attributes.position.needsUpdate = true;
 
   clothGeometry.computeVertexNormals();
-
-  sphere.position.copy(ballPosition);
 
   renderer.render(scene, camera);
 }
