@@ -27,20 +27,8 @@ const TIMESTEP = 18 / 1000;
 const TIMESTEP_SQ = TIMESTEP * TIMESTEP;
 
 const windForce = new THREE.Vector3(0, 0, 0);
-
 const tmpForce = new THREE.Vector3();
-
 const diff = new THREE.Vector3();
-
-function satisfyConstraints(p1, p2, distance) {
-  diff.subVectors(p2.position, p1.position);
-  const currentDist = diff.length();
-  if (currentDist === 0) return; // prevents division by 0
-  const correction = diff.multiplyScalar(1 - distance / currentDist);
-  const correctionHalf = correction.multiplyScalar(0.5);
-  p1.position.add(correctionHalf);
-  p2.position.sub(correctionHalf);
-}
 
 function simulate(now) {
   const windStrength = Math.cos(now / 7000) * 10 + 1;
@@ -54,7 +42,6 @@ function simulate(now) {
   windForce.multiplyScalar(windStrength);
 
   // Aerodynamics forces
-
   const particles = cloth.particles;
 
   let indx;
@@ -79,9 +66,18 @@ function simulate(now) {
   }
 
   // Start Constraints
-
   const constraints = cloth.constraints;
   const il = constraints.length;
+
+  const satisfyConstraints = function (p1, p2, distance) {
+    diff.subVectors(p2.position, p1.position);
+    const currentDist = diff.length();
+    if (currentDist === 0) return; // prevents division by 0
+    const correction = diff.multiplyScalar(1 - distance / currentDist);
+    const correctionHalf = correction.multiplyScalar(0.5);
+    p1.position.add(correctionHalf);
+    p2.position.sub(correctionHalf);
+  }
 
   for (let i = 0; i < il; i++) {
     const constraint = constraints[i];
@@ -89,7 +85,6 @@ function simulate(now) {
   }
 
   // Floor Constraints
-
   for (let i = 0, il = particles.length; i < il; i++) {
     const particle = particles[i];
     const pos = particle.position;
@@ -99,7 +94,6 @@ function simulate(now) {
   }
 
   // Pin Constraints
-
   for (let i = 0; i <= cloth.w; i++) {
     const p = particles[i + particles.length - 1 - cloth.w];
     p.position.copy(p.original);
@@ -109,27 +103,24 @@ function simulate(now) {
 
 /* testing cloth simulation */
 
-let container, stats;
+let stats;
 let camera, scene, renderer;
 
 let clothGeometry;
-let object;
 
 init();
 animate(0);
 
 function init() {
-  container = document.createElement("div");
+  const container = document.createElement("div");
   document.body.appendChild(container);
 
   // scene
-
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xcce0ff);
   scene.fog = new THREE.Fog(0xcce0ff, 500, 10000);
 
   // camera
-
   camera = new THREE.PerspectiveCamera(
     20,
     window.innerWidth / window.innerHeight,
@@ -139,7 +130,6 @@ function init() {
   camera.position.set(1000, -50, 1500);
 
   // lights
-
   scene.add(new THREE.AmbientLight(0x666666));
 
   const light = new THREE.DirectionalLight(0xdfebff, 1);
@@ -163,7 +153,6 @@ function init() {
   scene.add(light);
 
   // cloth material
-
   const loader = new THREE.TextureLoader();
   const clothTexture = loader.load("textures/patterns/circuit_pattern.png");
   clothTexture.anisotropy = 16;
@@ -175,7 +164,6 @@ function init() {
   });
 
   // cloth geometry
-
   clothGeometry = new THREE.ParametricBufferGeometry(
     clothFunction,
     cloth.w,
@@ -183,8 +171,7 @@ function init() {
   );
 
   // cloth mesh
-
-  object = new THREE.Mesh(clothGeometry, clothMaterial);
+  const object = new THREE.Mesh(clothGeometry, clothMaterial);
   object.position.set(0, -125, 0);
   object.castShadow = true;
   scene.add(object);
@@ -196,7 +183,6 @@ function init() {
   });
 
   // ground
-
   const groundTexture = loader.load("textures/terrain/grasslight-big.jpg");
   groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
   groundTexture.repeat.set(25, 25);
@@ -215,7 +201,6 @@ function init() {
   scene.add(mesh);
 
   // poles
-
   const poleGeo = new THREE.BoxBufferGeometry(5, 260, 5);
   const poleMat = new THREE.MeshLambertMaterial();
 
@@ -256,7 +241,6 @@ function init() {
   scene.add(mesh);
 
   // renderer
-
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -274,16 +258,11 @@ function init() {
   controls.maxDistance = 5000;
 
   // performance monitor
-
   stats = new Stats();
   container.appendChild(stats.dom);
 
-  //
-
   window.addEventListener("resize", onWindowResize, false);
 }
-
-//
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -291,8 +270,6 @@ function onWindowResize() {
 
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-
-//
 
 function animate(now) {
   requestAnimationFrame(animate);
