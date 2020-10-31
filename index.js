@@ -18,7 +18,10 @@ import { Cloth } from "./cloth.js";
 // http://cg.alexandra.dk/tag/spring-mass-system/
 // Real-time Cloth Animation http://www.darwin3d.com/gamedev/articles/col0599.pdf
 
-const cloth = new Cloth(xSegs, ySegs);
+const cloths = [];
+for (let i = 0; i < 4; i++) {
+  cloths.push(new Cloth(xSegs, ySegs));
+}
 
 const GRAVITY = 981 * 1.4;
 const gravity = new THREE.Vector3(0, -GRAVITY, 0).multiplyScalar(MASS);
@@ -31,74 +34,77 @@ const tmpForce = new THREE.Vector3();
 const diff = new THREE.Vector3();
 
 function simulate(now) {
-  const windStrength = Math.cos(now / 7000) * 10 + 1;
-
-  windForce.set(
-    Math.sin(now / 2000),
-    Math.cos(now / 3000),
-    Math.sin(now / 1000)
-  );
-  windForce.normalize();
-  windForce.multiplyScalar(windStrength);
-
   // Aerodynamics forces
-  const particles = cloth.particles;
+    let indx;
+    const normal = new THREE.Vector3();
 
-  let indx;
-  const normal = new THREE.Vector3();
-  const indices = clothGeometry.index;
-  const normals = clothGeometry.attributes.normal;
+  clothGeometries.forEach((clothGeometry, idx) => {
+    const rand = Math.random() * now * (idx + 1);
+    const windStrength = Math.cos(rand / 7000) * 10 + 5;
 
-  for (let i = 0, il = indices.count; i < il; i += 3) {
-    for (let j = 0; j < 3; j++) {
-      indx = indices.getX(i + j);
-      normal.fromBufferAttribute(normals, indx);
-      tmpForce.copy(normal).normalize().multiplyScalar(normal.dot(windForce));
-      particles[indx].addForce(tmpForce);
+    windForce.set(
+      Math.sin(rand / 2000),
+      Math.cos(rand / 3000),
+      Math.sin(rand / 1000)
+    );
+    windForce.normalize();
+    windForce.multiplyScalar(windStrength);
+
+    const particles = cloths[idx].particles;
+    const indices = clothGeometry.index;
+    const normals = clothGeometry.attributes.normal;
+
+    for (let i = 0, il = indices.count; i < il; i += 3) {
+      for (let j = 0; j < 3; j++) {
+        indx = indices.getX(i + j);
+        normal.fromBufferAttribute(normals, indx);
+        tmpForce.copy(normal).normalize().multiplyScalar(normal.dot(windForce));
+        particles[indx].addForce(tmpForce);
+      }
     }
-  }
 
-  for (let i = 0, il = particles.length; i < il; i++) {
-    const particle = particles[i];
-    particle.addForce(gravity);
+    for (let i = 0, il = particles.length; i < il; i++) {
+      const particle = particles[i];
+      particle.addForce(gravity);
 
-    particle.integrate(TIMESTEP_SQ);
-  }
-
-  // Start Constraints
-  const constraints = cloth.constraints;
-  const il = constraints.length;
-
-  const satisfyConstraints = function (p1, p2, distance) {
-    diff.subVectors(p2.position, p1.position);
-    const currentDist = diff.length();
-    if (currentDist === 0) return; // prevents division by 0
-    const correction = diff.multiplyScalar(1 - distance / currentDist);
-    const correctionHalf = correction.multiplyScalar(0.5);
-    p1.position.add(correctionHalf);
-    p2.position.sub(correctionHalf);
-  }
-
-  for (let i = 0; i < il; i++) {
-    const constraint = constraints[i];
-    satisfyConstraints(constraint[0], constraint[1], constraint[2]);
-  }
-
-  // Floor Constraints
-  for (let i = 0, il = particles.length; i < il; i++) {
-    const particle = particles[i];
-    const pos = particle.position;
-    if (pos.y < -250) {
-      pos.y = -250;
+      particle.integrate(TIMESTEP_SQ);
     }
-  }
 
-  // Pin Constraints
-  for (let i = 0; i <= cloth.w; i++) {
-    const p = particles[i + particles.length - 1 - cloth.w];
-    p.position.copy(p.original);
-    p.previous.copy(p.original);
-  }
+    // Start Constraints
+    const constraints = cloths[idx].constraints;
+    const il = constraints.length;
+
+    const satisfyConstraints = function (p1, p2, distance) {
+      diff.subVectors(p2.position, p1.position);
+      const currentDist = diff.length();
+      if (currentDist === 0) return; // prevents division by 0
+      const correction = diff.multiplyScalar(1 - distance / currentDist);
+      const correctionHalf = correction.multiplyScalar(0.5);
+      p1.position.add(correctionHalf);
+      p2.position.sub(correctionHalf);
+    };
+
+    for (let i = 0; i < il; i++) {
+      const constraint = constraints[i];
+      satisfyConstraints(constraint[0], constraint[1], constraint[2]);
+    }
+
+    // Floor Constraints
+    for (let i = 0, il = particles.length; i < il; i++) {
+      const particle = particles[i];
+      const pos = particle.position;
+      if (pos.y < -250) {
+        pos.y = -250;
+      }
+    }
+
+    // Pin Constraints
+    for (let i = 0; i <= cloths[0].w; i++) {
+      const p = particles[i + particles.length - 1 - cloths[0].w];
+      p.position.copy(p.original);
+      p.previous.copy(p.original);
+    }
+  });
 }
 
 /* testing cloth simulation */
@@ -106,7 +112,7 @@ function simulate(now) {
 let stats;
 let camera, scene, renderer;
 
-let clothGeometry;
+const clothGeometries = [];
 
 init();
 animate(0);
@@ -164,22 +170,25 @@ function init() {
   });
 
   // cloth geometry
-  clothGeometry = new THREE.ParametricBufferGeometry(
-    clothFunction,
-    cloth.w,
-    cloth.h
-  );
+  cloths.forEach((cloth, i) => {
+    const clothGeometry = new THREE.ParametricBufferGeometry(
+      clothFunction,
+      cloth.w,
+      cloth.h
+    );
+    clothGeometries.push(clothGeometry);
 
-  // cloth mesh
-  const object = new THREE.Mesh(clothGeometry, clothMaterial);
-  object.position.set(0, -125, 0);
-  object.castShadow = true;
-  scene.add(object);
+    // cloth mesh
+    const object = new THREE.Mesh(clothGeometry, clothMaterial);
+    object.position.set(i * 100 - 150, -125, 0);
+    object.castShadow = true;
+    scene.add(object);
 
-  object.customDepthMaterial = new THREE.MeshDepthMaterial({
-    depthPacking: THREE.RGBADepthPacking,
-    map: clothTexture,
-    alphaTest: 0.5,
+    object.customDepthMaterial = new THREE.MeshDepthMaterial({
+      depthPacking: THREE.RGBADepthPacking,
+      map: clothTexture,
+      alphaTest: 0.5,
+    });
   });
 
   // ground
@@ -279,17 +288,19 @@ function animate(now) {
 }
 
 function render() {
-  const p = cloth.particles;
+  cloths.forEach((cloth, idx) => {
+    const p = cloth.particles;
 
-  for (let i = 0, il = p.length; i < il; i++) {
-    const v = p[i].position;
+    for (let i = 0, il = p.length; i < il; i++) {
+      const v = p[i].position;
 
-    clothGeometry.attributes.position.setXYZ(i, v.x, v.y, v.z);
-  }
+      clothGeometries[idx].attributes.position.setXYZ(i, v.x, v.y, v.z);
+    }
 
-  clothGeometry.attributes.position.needsUpdate = true;
+    clothGeometries[idx].attributes.position.needsUpdate = true;
 
-  clothGeometry.computeVertexNormals();
+    clothGeometries[idx].computeVertexNormals();
+  });
 
   renderer.render(scene, camera);
 }
