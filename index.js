@@ -21,8 +21,8 @@ const DRAG = 1 - DAMPING;
 const MASS = 0.1;
 const restDistance = 25;
 
-const xSegs = 10;
-const ySegs = 10;
+const xSegs = 16;
+const ySegs = 5;
 
 const clothFunction = plane(restDistance * xSegs, restDistance * ySegs);
 
@@ -270,12 +270,12 @@ function init() {
   // camera
 
   camera = new THREE.PerspectiveCamera(
-    30,
+    20,
     window.innerWidth / window.innerHeight,
     1,
     10000
   );
-  camera.position.set(1000, 50, 1500);
+  camera.position.set(1000, -50, 1500);
 
   // lights
 
@@ -324,7 +324,7 @@ function init() {
   // cloth mesh
 
   object = new THREE.Mesh(clothGeometry, clothMaterial);
-  object.position.set(0, -250, 0);
+  object.position.set(0, -125, 0);
   object.castShadow = true;
   scene.add(object);
 
@@ -355,25 +355,25 @@ function init() {
 
   // poles
 
-  const poleGeo = new THREE.BoxBufferGeometry(5, 375, 5);
+  const poleGeo = new THREE.BoxBufferGeometry(5, 260, 5);
   const poleMat = new THREE.MeshLambertMaterial();
 
   mesh = new THREE.Mesh(poleGeo, poleMat);
-  mesh.position.x = -125;
+  mesh.position.x = -200;
   mesh.position.y = -62;
   mesh.receiveShadow = true;
   mesh.castShadow = true;
   scene.add(mesh);
 
   mesh = new THREE.Mesh(poleGeo, poleMat);
-  mesh.position.x = 125;
+  mesh.position.x = 200;
   mesh.position.y = -62;
   mesh.receiveShadow = true;
   mesh.castShadow = true;
   scene.add(mesh);
 
-  mesh = new THREE.Mesh(new THREE.BoxBufferGeometry(255, 5, 5), poleMat);
-  mesh.position.y = -250 + 750 / 2;
+  mesh = new THREE.Mesh(new THREE.BoxBufferGeometry(400, 5, 5), poleMat);
+  mesh.position.y = -200 + 530 / 2;
   mesh.position.x = 0;
   mesh.receiveShadow = true;
   mesh.castShadow = true;
@@ -381,15 +381,15 @@ function init() {
 
   const gg = new THREE.BoxBufferGeometry(10, 10, 10);
   mesh = new THREE.Mesh(gg, poleMat);
-  mesh.position.y = -250;
-  mesh.position.x = 125;
+  mesh.position.y = -190;
+  mesh.position.x = 200;
   mesh.receiveShadow = true;
   mesh.castShadow = true;
   scene.add(mesh);
 
   mesh = new THREE.Mesh(gg, poleMat);
-  mesh.position.y = -250;
-  mesh.position.x = -125;
+  mesh.position.y = -190;
+  mesh.position.x = -200;
   mesh.receiveShadow = true;
   mesh.castShadow = true;
   scene.add(mesh);
