@@ -182,7 +182,7 @@ function Cloth(w, h) {
 }
 
 function simulate(now) {
-  const windStrength = Math.cos(now / 7000) * 20 + 40;
+  const windStrength = Math.cos(now / 7000) * 10 + 1;
 
   windForce.set(
     Math.sin(now / 2000),
