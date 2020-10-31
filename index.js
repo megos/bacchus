@@ -3,6 +3,8 @@ import * as THREE from "https://unpkg.com/three/build/three.module.js";
 import Stats from "https://unpkg.com/three/examples/jsm/libs/stats.module.js";
 
 import { OrbitControls } from "https://unpkg.com/three/examples/jsm/controls/OrbitControls.js";
+import { Particle } from "./particle.js";
+import { clothFunction, restDistance, xSegs, ySegs } from "./lib.js";
 
 /*
  * Cloth Simulation using a relaxed constraints solver
@@ -16,15 +18,7 @@ import { OrbitControls } from "https://unpkg.com/three/examples/jsm/controls/Orb
 // http://cg.alexandra.dk/tag/spring-mass-system/
 // Real-time Cloth Animation http://www.darwin3d.com/gamedev/articles/col0599.pdf
 
-const DAMPING = 0.03;
-const DRAG = 1 - DAMPING;
 const MASS = 0.1;
-const restDistance = 25;
-
-const xSegs = 16;
-const ySegs = 5;
-
-const clothFunction = plane(restDistance * xSegs, restDistance * ySegs);
 
 const cloth = new Cloth(xSegs, ySegs);
 
@@ -37,53 +31,6 @@ const TIMESTEP_SQ = TIMESTEP * TIMESTEP;
 const windForce = new THREE.Vector3(0, 0, 0);
 
 const tmpForce = new THREE.Vector3();
-
-function plane(width, height) {
-  return function (u, v, target) {
-    const x = (u - 0.5) * width;
-    const y = (v + 0.5) * height;
-    const z = 0;
-
-    target.set(x, y, z);
-  };
-}
-
-function Particle(x, y, z, mass) {
-  this.position = new THREE.Vector3();
-  this.previous = new THREE.Vector3();
-  this.original = new THREE.Vector3();
-  this.a = new THREE.Vector3(0, 0, 0); // acceleration
-  this.mass = mass;
-  this.invMass = 1 / mass;
-  this.tmp = new THREE.Vector3();
-  this.tmp2 = new THREE.Vector3();
-
-  // init
-
-  clothFunction(x, y, this.position); // position
-  clothFunction(x, y, this.previous); // previous
-  clothFunction(x, y, this.original);
-}
-
-// Force -> Acceleration
-
-Particle.prototype.addForce = function (force) {
-  this.a.add(this.tmp2.copy(force).multiplyScalar(this.invMass));
-};
-
-// Performs Verlet integration
-
-Particle.prototype.integrate = function (timesq) {
-  const newPos = this.tmp.subVectors(this.position, this.previous);
-  newPos.multiplyScalar(DRAG).add(this.position);
-  newPos.add(this.a.multiplyScalar(timesq));
-
-  this.tmp = this.previous;
-  this.previous = this.position;
-  this.position = newPos;
-
-  this.a.set(0, 0, 0);
-};
 
 const diff = new THREE.Vector3();
 
