@@ -164,7 +164,7 @@ function init() {
   cloths.forEach((cloth, i) => {
     const clothTexture = loader.load(`textures/patterns/shop-curtain-${i}.png`);
     clothTexture.anisotropy = 16;
-    clothTexture.encoding = THREE.sRGBEncoding
+    clothTexture.encoding = THREE.sRGBEncoding;
 
     const clothMaterial = new THREE.MeshLambertMaterial({
       map: clothTexture,
