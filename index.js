@@ -196,9 +196,16 @@ function init() {
   });
 
   // ground
+  const groundTexture = loader.load("textures/terrain/ground.jpg");
+  groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+  groundTexture.repeat.set(200, 200);
+  groundTexture.anisotropy = 16;
+  groundTexture.encoding = THREE.sRGBEncoding;
+
+  const groundMaterial = new THREE.MeshLambertMaterial({ map: groundTexture });
   let mesh = new THREE.Mesh(
     new THREE.PlaneBufferGeometry(20000, 20000),
-    new THREE.MeshStandardMaterial({ color: 0x8b4315 })
+    groundMaterial
   );
   mesh.position.y = -200;
   mesh.rotation.x = -Math.PI / 2;
