@@ -167,6 +167,7 @@ function init() {
   cloths.forEach((cloth, i) => {
     const clothTexture = loader.load(`textures/patterns/shop-curtain-${i}.png`);
     clothTexture.anisotropy = 16;
+    clothTexture.encoding = THREE.sRGBEncoding
 
     const clothMaterial = new THREE.MeshLambertMaterial({
       map: clothTexture,
@@ -195,22 +196,20 @@ function init() {
   });
 
   // ground
-  const groundMaterial = new THREE.MeshLambertMaterial();
-
   let mesh = new THREE.Mesh(
     new THREE.PlaneBufferGeometry(20000, 20000),
-    groundMaterial
+    new THREE.MeshStandardMaterial({ color: 0x8b4315 })
   );
   mesh.position.y = -200;
   mesh.rotation.x = -Math.PI / 2;
   mesh.receiveShadow = true;
   scene.add(mesh);
 
-  // poles
-  const poleGeo = new THREE.CylinderBufferGeometry(5, 5, 500, 20);
-  const poleMat = new THREE.MeshStandardMaterial({ color: 0x8b4315 });
-
-  mesh = new THREE.Mesh(poleGeo, poleMat);
+  // pole
+  mesh = new THREE.Mesh(
+    new THREE.CylinderBufferGeometry(5, 5, 500, 20),
+    new THREE.MeshStandardMaterial({ color: 0x8b4315 })
+  );
   mesh.position.y = 60;
   mesh.position.x = 0;
   mesh.receiveShadow = true;
