@@ -1,7 +1,4 @@
 import * as THREE from "https://unpkg.com/three/build/three.module.js";
-
-import Stats from "https://unpkg.com/three/examples/jsm/libs/stats.module.js";
-
 import { OrbitControls } from "https://unpkg.com/three/examples/jsm/controls/OrbitControls.js";
 import { clothFunction, xSegs, ySegs, MASS } from "./lib.js";
 import { Cloth } from "./cloth.js";
@@ -241,10 +238,6 @@ function init() {
   controls.minDistance = 1000;
   controls.maxDistance = 5000;
 
-  // performance monitor
-  stats = new Stats();
-  container.appendChild(stats.dom);
-
   window.addEventListener("resize", onWindowResize, false);
 }
 
@@ -259,7 +252,6 @@ function animate(now) {
   requestAnimationFrame(animate);
   simulate(now);
   render();
-  stats.update();
 }
 
 function render() {
