@@ -117,8 +117,8 @@ init();
 animate(0);
 
 function init() {
-  const container = document.createElement("div");
-  document.body.appendChild(container);
+  const container = document.querySelector("#app");
+  container.removeChild(document.querySelector(".loading"));
 
   // scene
   scene = new THREE.Scene();
