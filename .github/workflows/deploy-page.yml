@@ -32,7 +32,7 @@ jobs:
           node-version: 16
           cache: 'yarn'
       - run: yarn --frozen-lockfile
-      - run: yarn build:page
+      - run: yarn build
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
