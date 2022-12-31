@@ -1,0 +1,19 @@
+{
+  "name": "bacchus",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build --base ./",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.3",
+    "vite": "^4.0.0"
+  },
+  "dependencies": {
+    "@types/three": "^0.147.1",
+    "three": "^0.148.0"
+  }
+}

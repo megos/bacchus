@@ -1,4 +1,4 @@
-import { Vector3 } from "https://unpkg.com/three@0.127.0/build/three.module.js";
+import { Vector3 } from "three";
 import { DRAG, clothFunction } from "./lib.js";
 
 export function Particle(x, y, z, mass) {
