@@ -1,5 +1,6 @@
-import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
-import { OrbitControls } from "https://unpkg.com/three@0.127.0/examples/jsm/controls/OrbitControls.js";
+import { Vector3, Scene, Color, Fog, PerspectiveCamera, AmbientLight, DirectionalLight, TextureLoader, MeshLambertMaterial, Mesh, MeshDepthMaterial, PlaneBufferGeometry, CylinderBufferGeometry, WebGLRenderer, sRGBEncoding, RepeatWrapping, DoubleSide, RGBADepthPacking, MeshStandardMaterial } from "three";
+import { OrbitControls } from 'three/addons/controls/OrbitControls'
+import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry'
 import { clothFunction, xSegs, ySegs, MASS } from "./lib.js";
 import { Cloth } from "./cloth.js";
 
@@ -23,19 +24,19 @@ for (let i = 0; i < 4; i++) {
 }
 
 const GRAVITY = 981 * 1.4;
-const gravity = new THREE.Vector3(0, -GRAVITY, 0).multiplyScalar(MASS);
+const gravity = new Vector3(0, -GRAVITY, 0).multiplyScalar(MASS);
 
 const TIMESTEP = 18 / 1000;
 const TIMESTEP_SQ = TIMESTEP * TIMESTEP;
 
-const windForce = new THREE.Vector3(0, 0, 0);
-const tmpForce = new THREE.Vector3();
-const diff = new THREE.Vector3();
+const windForce = new Vector3(0, 0, 0);
+const tmpForce = new Vector3();
+const diff = new Vector3();
 
 function simulate(now) {
   // Aerodynamics forces
   let indx;
-  const normal = new THREE.Vector3();
+  const normal = new Vector3();
 
   clothGeometries.forEach((clothGeometry, idx) => {
     const rand = now + randoms[idx];
@@ -121,12 +122,12 @@ function init() {
   container.removeChild(document.querySelector(".loading"));
 
   // scene
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x341602);
-  scene.fog = new THREE.Fog(0x341602, 500, 10000);
+  scene = new Scene();
+  scene.background = new Color(0x341602);
+  scene.fog = new Fog(0x341602, 500, 10000);
 
   // camera
-  camera = new THREE.PerspectiveCamera(
+  camera = new PerspectiveCamera(
     20,
     window.innerWidth / window.innerHeight,
     1,
@@ -135,9 +136,9 @@ function init() {
   camera.position.set(1000, -50, 1500);
 
   // lights
-  scene.add(new THREE.AmbientLight(0x666666));
+  scene.add(new AmbientLight(0x666666));
 
-  const light = new THREE.DirectionalLight(0xdfebff, 1);
+  const light = new DirectionalLight(0xdfebff, 1);
   light.position.set(50, 200, 100);
   light.position.multiplyScalar(1.3);
 
@@ -158,21 +159,21 @@ function init() {
   scene.add(light);
 
   // cloth material
-  const loader = new THREE.TextureLoader();
+  const loader = new TextureLoader();
 
   // cloth geometry
   cloths.forEach((cloth, i) => {
     const clothTexture = loader.load(`textures/patterns/shop-curtain-${i}.png`);
     clothTexture.anisotropy = 16;
-    clothTexture.encoding = THREE.sRGBEncoding;
+    clothTexture.encoding = sRGBEncoding;
 
-    const clothMaterial = new THREE.MeshLambertMaterial({
+    const clothMaterial = new MeshLambertMaterial({
       map: clothTexture,
-      side: THREE.DoubleSide,
+      side: DoubleSide,
       alphaTest: 1,
     });
 
-    const clothGeometry = new THREE.ParametricBufferGeometry(
+    const clothGeometry = new ParametricGeometry(
       clothFunction,
       cloth.w,
       cloth.h
@@ -180,13 +181,13 @@ function init() {
     clothGeometries.push(clothGeometry);
 
     // cloth mesh
-    const object = new THREE.Mesh(clothGeometry, clothMaterial);
+    const object = new Mesh(clothGeometry, clothMaterial);
     object.position.set(i * 100 - 150, -125, 0);
     object.castShadow = true;
     scene.add(object);
 
-    object.customDepthMaterial = new THREE.MeshDepthMaterial({
-      depthPacking: THREE.RGBADepthPacking,
+    object.customDepthMaterial = new MeshDepthMaterial({
+      depthPacking: RGBADepthPacking,
       map: clothTexture,
       alphaTest: 0.5,
     });
@@ -194,14 +195,14 @@ function init() {
 
   // ground
   const groundTexture = loader.load("textures/terrain/ground.jpg");
-  groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+  groundTexture.wrapS = groundTexture.wrapT = RepeatWrapping;
   groundTexture.repeat.set(200, 200);
   groundTexture.anisotropy = 16;
-  groundTexture.encoding = THREE.sRGBEncoding;
+  groundTexture.encoding = sRGBEncoding;
 
-  const groundMaterial = new THREE.MeshLambertMaterial({ map: groundTexture });
-  let mesh = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(20000, 20000),
+  const groundMaterial = new MeshLambertMaterial({ map: groundTexture });
+  let mesh = new Mesh(
+    new PlaneBufferGeometry(20000, 20000),
     groundMaterial
   );
   mesh.position.y = -200;
@@ -210,9 +211,9 @@ function init() {
   scene.add(mesh);
 
   // pole
-  mesh = new THREE.Mesh(
-    new THREE.CylinderBufferGeometry(5, 5, 500, 20),
-    new THREE.MeshStandardMaterial({ color: 0x8b4315 })
+  mesh = new Mesh(
+    new CylinderBufferGeometry(5, 5, 500, 20),
+    new MeshStandardMaterial({ color: 0x8b4315 })
   );
   mesh.position.y = 60;
   mesh.position.x = 0;
@@ -222,13 +223,13 @@ function init() {
   mesh.rotation.set(Math.PI / 2, 0, Math.PI / 2);
 
   // renderer
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer = new WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   container.appendChild(renderer.domElement);
 
-  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.outputEncoding = sRGBEncoding;
 
   renderer.shadowMap.enabled = true;
 
